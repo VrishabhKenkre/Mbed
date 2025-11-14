@@ -34,6 +34,10 @@ void toggleGPIOB0( void );
 void initGpioC6AsInput( void );
 uint32_t checkGPIOC6(void);
 void initGpioB0AsAF2_TIM3CH3(void);
+void initGpioC6AsAF2_TIM3CH1(void);
+
+void PC6_use_pullup(void);
+void PC6_use_pulldown(void);
 
 #ifdef __cplusplus
 }

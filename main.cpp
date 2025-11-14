@@ -3,24 +3,16 @@
 #include "nucleo_led.h"
 #include "hardware_stm_gpio.h"
 #include "hardware_stm_timer3.h"
+#include "hardware_stm_interruptcontroller.h"
 
-static void delay(volatile uint32_t ticks)
+int main(void)
 {
-    while (ticks--) { __asm__("nop"); }
-}
+    initGpioB0AsOutput();     // configure PB0 as output for LED 
 
-
-int main (void)
-{
-    /* Route PB0 to TIM3_CH3 (AF2) of GPIO output */
-    initGpioB0AsAF2_TIM3CH3();   // PB0: MODER=AF, AFRL=AF2  (TIM3_CH3)
-    
-    /* Start TIM3 CH3 in Output-Compare Toggle mode at ~1 Hz */
-    timer3_ch3_init_oc_toggle_1Hz();   // PSC/ARR/CCR3 + CCMR2/CCER/CR1
+    initTimer3ToInterrupt();   // set up Timer 3 + NVIC + interrupts
 
     while (1) {
-        /* nothing to do; hardware is toggling PB0 via TIM3 */
-        __asm__("nop");
+        // main loop empty; LED is controlled entirely by ISR
     }
 }
 
@@ -43,8 +35,8 @@ int main (void)
 //         delay(2000);                       // tiny delay so changes are visible
 //     }
 // }
-//toggle_LED1(); //uncomment once you have filled in the function
-//debugprintHelloWorld();
+// toggle_LED1(); //uncomment once you have filled in the function
+// debugprintHelloWorld();
 
 // int main (void)
 // {

@@ -187,3 +187,31 @@ void initGpioB0AsAF2_TIM3CH3(void)
     *(volatile uint32_t*)PORTB_AFR1_REGISTER   &= ~(0xFu << (0 * 4));
     *(volatile uint32_t*)PORTB_AFR1_REGISTER   |=  (0x2u << (0 * 4));
 }
+
+void initGpioC6AsAF2_TIM3CH1(void)
+{
+    /* Enable GPIOC clock */
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
+
+    /* PC6 → Alternate Function (MODER[13:12] = 10) */
+    *(volatile uint32_t*)PORTC_MODER_REGISTER &= ~_2BIT_FIELD(6);
+    *(volatile uint32_t*)PORTC_MODER_REGISTER |=  _2BIT_VAL(6, 0x2u);
+
+    /* Push-pull (harmless) and no pull (source will drive) */
+    *(volatile uint32_t*)PORTC_OTYPER_REGISTER &= ~_1BIT_FIELD(6);
+    *(volatile uint32_t*)PORTC_PUPDR_REGISTER  &= ~_2BIT_FIELD(6);
+
+    /* AFRL nibble for PC6 = AF2 (TIM3 group) → bits [27:24] = 0x2 */
+    *(volatile uint32_t*)PORTC_AFRL_REGISTER &= ~(0xFu << (6 * 4));
+    *(volatile uint32_t*)PORTC_AFRL_REGISTER |=  (0x2u << (6 * 4));
+}
+
+//Helpers
+void PC6_use_pullup(void) {
+    *(volatile uint32_t*)PORTC_PUPDR_REGISTER &= ~_2BIT_FIELD(6);
+    *(volatile uint32_t*)PORTC_PUPDR_REGISTER |=  _2BIT_VAL(6, 0x1u); // 01 = pull-up
+}
+void PC6_use_pulldown(void) {
+    *(volatile uint32_t*)PORTC_PUPDR_REGISTER &= ~_2BIT_FIELD(6);
+    *(volatile uint32_t*)PORTC_PUPDR_REGISTER |=  _2BIT_VAL(6, 0x2u); // 10 = pull-down
+}

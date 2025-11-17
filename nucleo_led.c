@@ -39,3 +39,20 @@ uint32_t read_PC6(void)
     return checkGPIOC6();
 }
 
+void set_LED1_to_C6( void )
+{
+    static int prev_C6_val = -1;
+    int C6_val = checkGPIOC6();
+    printf("C6_val=%d\n", C6_val);
+    if (prev_C6_val != C6_val){
+        // Value has changed, need to set it!
+        if (C6_val > 0){
+            // Is HIGH, then turn LED1 on!
+            setGPIOB0();
+        }else{
+            // Is HIGH, then turn LED1 off!
+            clearGPIOB0();
+        }
+        prev_C6_val = C6_val;
+    }
+}

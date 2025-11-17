@@ -13,6 +13,11 @@ void initTimer3ToInterrupt(void);
 
 /* TIM3 IRQ handler (called from vector table) */
 void TIM3_IRQHandler(void);
+void enableEXTI6OnPortC(void);
+void EXTI9_5_IRQHandler(void);
+
+
+void debugToggleFromInterruptFile(void);
 
 #ifdef __cplusplus
 }

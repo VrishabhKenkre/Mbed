@@ -5,18 +5,21 @@
 #include "hardware_stm_timer3.h"
 #include "hardware_stm_interruptcontroller.h"
 
+
+
+
 int main(void)
 {
-    initGpioB0AsOutput();     // configure PB0 as output for LED 
+    enableEXTI6OnPortC();   // this also calls initGpioC6AsInput + initGpioB0AsOutput
 
-    initTimer3ToInterrupt();   // set up Timer 3 + NVIC + interrupts
+    // Manually call the ISR in software as a test:
+    EXTI9_5_IRQHandler();
 
     while (1) {
-        // main loop empty; LED is controlled entirely by ISR
+        // do nothing
     }
+
 }
-
-
 
 
 // int main (void)

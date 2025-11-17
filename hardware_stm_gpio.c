@@ -54,6 +54,43 @@
 
 //so we can write a specific 2-bit value (00..11) at a pin’s field:
 #define _2BIT_VAL(pin, v) ((uint32_t)((v) & 0x3u) << ((pin) * 2))
+
+
+#define GPIO_0_MODER                 0x0003      // bits 1:0
+#define GPIO_0_MODER_OUT             0x0001
+#define GPIO_0_MODER_AF              0x0002
+
+/* OTYPER bit for PB0 */
+#define GPIO_0_OTYPER                0x0001
+#define GPIO_0_OTYPER_PP             0x0000
+
+/* PUPDR bits for PB0 */
+#define GPIO_0_PUPDR                 0x0003
+#define GPIO_0_PUPDR_NOPULL          0x0000
+
+/* ODR bit for PB0 */
+#define GPIO_0_ODR_HIGH              0x0001
+
+
+/* MODER bits for PC6 */
+#define GPIO_6_MODER                 0x3000      // bits 13:12
+#define GPIO_6_MODER_AF              0x2000
+#define GPIO_6_MODER_OUT             0x1000
+#define GPIO_6_MODER_IN              0x0000
+#define GPIO_6_MODER_AN              0x3000
+
+/* OTYPER bit for PC6 */
+#define GPIO_6_OTYPER                0x40        // bit 6
+#define GPIO_6_OTYPER_PP             0x00
+
+/* OSPEEDR bits for PC6 */
+#define GPIO_6_OSPEEDR               0x3000
+#define GPIO_6_OSPEEDR_HIGH_SPEED    0x3000
+
+/* PUPDR bits for PC6 */
+#define GPIO_6_PUPDR                 0x3000
+#define GPIO_6_PUPDR_NOPULL          0x0000
+#define GPIO_6_PUPDER_PD             0x2000      // pulldown (10b)
 //flags MODER Register:
 
 //flags OTYPER Register:
@@ -71,80 +108,69 @@
 
 /* function definitions----------------------------------------------------------*/
 
-void initGpioC6AsInput( void )
+void initGpioC6AsInput(void)
 {
-    uint32_t  * reg_pointer; 
+    uint32_t *reg_pointer;
+
     /* GPIOC Peripheral clock enable */
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
 
     /* GPIOC Pin 6 as input: MODER[13:12] = 00 */
-    reg_pointer = (uint32_t*)PORTC_MODER_REGISTER;
-    *(volatile uint32_t*)reg_pointer &= ~_2BIT_FIELD(6);
-    
-    /*PUSH-PULL Pin*/ /*OTYPER[6] = 0 */
-    reg_pointer = (uint32_t*)PORTC_OTYPER_REGISTER;
-    *(volatile uint32_t*)reg_pointer &= ~_1BIT_FIELD(6);
+    reg_pointer = (uint32_t *)PORTC_MODER_REGISTER;
+    *reg_pointer = (*reg_pointer & ~GPIO_6_MODER) | GPIO_6_MODER_IN;
 
-    /*GPIOC pin 6 high speed OSPEEDR[13:12] = 10*/
-    reg_pointer = (uint32_t*)PORTC_OSPEEDR_REGISTER;
-    *(volatile uint32_t*)reg_pointer &= ~_2BIT_FIELD(6);
-    *(volatile uint32_t*)reg_pointer |=  _2BIT_VAL(6, 0x2u);
+    /* PUSH-PULL Pin: OTYPER[6] = 0 */
+    reg_pointer = (uint32_t *)PORTC_OTYPER_REGISTER;
+    *reg_pointer = (*reg_pointer & ~GPIO_6_OTYPER) | GPIO_6_OTYPER_PP;
 
-    /*Configure pulled-up PUPDR[13:12] = 01*/
-    reg_pointer = (uint32_t*)PORTC_PUPDR_REGISTER;
-    *(volatile uint32_t*)reg_pointer &= ~_2BIT_FIELD(6);
-    *(volatile uint32_t*)reg_pointer |=  _2BIT_VAL(6, 0x1u);
+    /* GPIOC pin 6 high speed */
+    reg_pointer = (uint32_t *)PORTC_OSPEEDR_REGISTER;
+    *reg_pointer = (*reg_pointer & ~GPIO_6_OSPEEDR) | GPIO_6_OSPEEDR_HIGH_SPEED;
 
-    // PUPDR[13:12] = 10  (pull-down → idle LOW)
-    // *(volatile uint32_t*)PORTC_PUPDR_REGISTER &= ~_2BIT_FIELD(6);
-    // *(volatile uint32_t*)PORTC_PUPDR_REGISTER |=  _2BIT_VAL(6, 0x2u);
+    /* Configure pulled-down: PUPDR[13:12] = 10 (pulldown → idle LOW) */
+    reg_pointer = (uint32_t *)PORTC_PUPDR_REGISTER;
+    *reg_pointer = (*reg_pointer & ~GPIO_6_PUPDR) | GPIO_6_PUPDER_PD;
 }
 
-
-void initGpioB0AsOutput( void )
+void initGpioB0AsOutput(void)
 {
-    uint32_t  * reg_pointer;
+    uint32_t *reg_pointer;
+
     /* GPIOB Peripheral clock enable */
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
 
-    /* GPIOB0 configured as output MODER[1:0] = 01*/
-    reg_pointer = (uint32_t*)PORTB_MODER_REGISTER;
-    *(volatile uint32_t*)reg_pointer &= ~_2BIT_FIELD(0);  /* clear bits 1:0   */
-    *(volatile uint32_t*)reg_pointer |=  _2BIT_VAL(0, 0x1u);  /* set   bits 1:0=01 */
-    
-    /*GPIOB0 configured as push-pull OTYPER[0] = 0*/
-    reg_pointer = (uint32_t*)PORTB_OTYPER_REGISTER;
-    *(volatile uint32_t*)reg_pointer &= ~_1BIT_FIELD(0);          /* clear bit 0 */
+    /* GPIOB0 configured as output: MODER[1:0] = 01 */
+    reg_pointer = (uint32_t *)PORTB_MODER_REGISTER;
+    *reg_pointer = (*reg_pointer & ~GPIO_0_MODER) | GPIO_0_MODER_OUT;
 
-    /*GPIOB0 configured floating PUPDR[1:0] = 00 (no pull)*/
-    reg_pointer = (uint32_t*)PORTB_PUPDR_REGISTER;
-    *(volatile uint32_t*)reg_pointer &= ~_2BIT_FIELD(0);  /* ensure 00 */
-    
-    /* GPIOB0 driven high to start out with */
-    reg_pointer = (uint32_t*)PORTB_BSRR_REGISTER;
-    *(volatile uint32_t*)reg_pointer = _1BIT_FIELD(0);            /* set PB0 high */    
+    /* GPIOB0 configured as push-pull */
+    reg_pointer = (uint32_t *)PORTB_OTYPER_REGISTER;
+    *reg_pointer = (*reg_pointer & ~GPIO_0_OTYPER) | GPIO_0_OTYPER_PP;
+
+    /* GPIOB0 no pull-up/pull-down */
+    reg_pointer = (uint32_t *)PORTB_PUPDR_REGISTER;
+    *reg_pointer = (*reg_pointer & ~GPIO_0_PUPDR) | GPIO_0_PUPDR_NOPULL;
+
+    /* Start with LED ON or OFF – your choice. Slides usually drive high: */
+    reg_pointer = (uint32_t *)PORTB_ODR_REGISTER;
+    *reg_pointer |= GPIO_0_ODR_HIGH;     // LED starts ON
+    // If you want OFF initially: *reg_pointer &= ~GPIO_0_ODR_HIGH;
 }
 
-
-
-void toggleGPIOB0( void )
+void toggleGPIOB0(void)
 {
-    uint32_t value;
-    uint32_t  * reg_pointer;
-    //get the current value of the pin 
-    value = (*(volatile uint32_t*)PORTB_ODR_REGISTER) & _1BIT_FIELD(0);
+    uint32_t *reg_pointer = (uint32_t *)PORTB_ODR_REGISTER;
+    uint32_t value = *reg_pointer & GPIO_0_ODR_HIGH;
+
     if (value > 0)
     {
-        //if high, clear the bit
-        *(volatile uint32_t*)PORTB_BSRR_REGISTER = (_1BIT_FIELD(0) << 16);  /* reset PB0 */
+        *reg_pointer &= ~GPIO_0_ODR_HIGH;    // turn OFF
     }
     else
     {
-        //if low, set the bit
-       *(volatile uint32_t*)PORTB_BSRR_REGISTER = _1BIT_FIELD(0);           /* set PB0 */
-    } 
+        *reg_pointer |= GPIO_0_ODR_HIGH;     // turn ON
+    }
 }
-
 
 
 void setGPIOB0( void )
@@ -162,6 +188,9 @@ uint32_t checkGPIOC6(void)
     uint32_t valueC6 = ((*(volatile uint32_t*)PORTC_IDR_REGISTER) >> 6) & 1u;
     return valueC6;   
 }
+
+
+
 
 /////TIMERSssssssss...
 void initGpioB0AsAF2_TIM3CH3(void)

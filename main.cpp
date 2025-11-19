@@ -6,20 +6,55 @@
 #include "hardware_stm_interruptcontroller.h"
 
 
-
+#include "led_gummy.h"
+#include "gummy_timer.h"
+#include "gummy_sm.h"
 
 int main(void)
 {
-    enableEXTI6OnPortC();   // this also calls initGpioC6AsInput + initGpioB0AsOutput
+    /* Low-level pin init */
+    initGpioC6AsInput();
+    initGpioB0AsOutput();
+    initGpioB1AsOutput();
+    initGpioB2AsOutput();
 
-    // Manually call the ISR in software as a test:
-    EXTI9_5_IRQHandler();
+    /* Timer + SM init */
+    GummyTimer_Init();
+    GummySM_Init();
 
-    while (1) {
-        // do nothing
+    while (1)
+    {
+        /* Run non-blocking state machine */
+        GummySM_Run();
+
+        /* If a new result is ready, read + print it */
+        if (GummySM_HasNewResult())
+        {
+            gummy_color_t color = GummySM_GetLastColor();
+            const char *name   = GummySM_ColorToString(color);
+
+            // Replace this with your UART print if needed
+            printf("Detected gummy: %s\r\n", name);
+        }
+
+        /* You can do other stuff here; everything is non-blocking. */
     }
-
 }
+
+
+
+// int main(void)
+// {
+//     enableEXTI6OnPortC();   // this also calls initGpioC6AsInput + initGpioB0AsOutput
+
+//     // Manually call the ISR in software as a test:
+//     EXTI9_5_IRQHandler();
+
+//     while (1) {
+//         // do nothing
+//     }
+
+// }
 
 
 // int main (void)

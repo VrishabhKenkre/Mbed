@@ -91,19 +91,24 @@
 #define GPIO_6_PUPDR                 0x3000
 #define GPIO_6_PUPDR_NOPULL          0x0000
 #define GPIO_6_PUPDER_PD             0x2000      // pulldown (10b)
-//flags MODER Register:
 
-//flags OTYPER Register:
+//Macros for PB1 and PB2
+#define GPIO_1_MODER        (3U << (1*2))
+#define GPIO_1_MODER_OUT    (1U << (1*2))
+#define GPIO_1_OTYPER       (1U << 1)
+#define GPIO_1_OTYPER_PP    (0U << 1)
+#define GPIO_1_PUPDR        (3U << (1*2))
+#define GPIO_1_PUPDR_NOPULL (0U << (1*2))
+#define GPIO_1_ODR_HIGH     (1U << 1)
 
-//flags OSPEEDR Register:
+#define GPIO_2_MODER        (3U << (2*2))
+#define GPIO_2_MODER_OUT    (1U << (2*2))
+#define GPIO_2_OTYPER       (1U << 2)
+#define GPIO_2_OTYPER_PP    (0U << 2)
+#define GPIO_2_PUPDR        (3U << (2*2))
+#define GPIO_2_PUPDR_NOPULL (0U << (2*2))
+#define GPIO_2_ODR_HIGH     (1U << 2)
 
-//flags PUPDR Register:
-
-//input data register:
-
-//flags AFR1 Register:
-
-//flags ODR Register:
 
 
 /* function definitions----------------------------------------------------------*/
@@ -189,6 +194,73 @@ uint32_t checkGPIOC6(void)
     return valueC6;   
 }
 
+void setGPIOB1( void )
+{
+    *(volatile uint32_t*)PORTB_BSRR_REGISTER = _1BIT_FIELD(1);     
+}
+
+void clearGPIOB1( void )
+{
+    *(volatile uint32_t*)PORTB_BSRR_REGISTER = (_1BIT_FIELD(1) << 16);    
+}
+
+void setGPIOB2( void )
+{
+    *(volatile uint32_t*)PORTB_BSRR_REGISTER = _1BIT_FIELD(2);     
+}
+
+void clearGPIOB2( void )
+{
+    *(volatile uint32_t*)PORTB_BSRR_REGISTER = (_1BIT_FIELD(2) << 16);    
+}
+
+void initGpioB1AsOutput(void)
+{
+    uint32_t *reg_pointer;
+
+    /* GPIOB Peripheral clock enable (harmless if already enabled elsewhere) */
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
+
+    /* GPIOB1 configured as output: MODER[3:2] = 01 */
+    reg_pointer = (uint32_t *)PORTB_MODER_REGISTER;
+    *reg_pointer = (*reg_pointer & ~GPIO_1_MODER) | GPIO_1_MODER_OUT;
+
+    /* GPIOB1 configured as push-pull */
+    reg_pointer = (uint32_t *)PORTB_OTYPER_REGISTER;
+    *reg_pointer = (*reg_pointer & ~GPIO_1_OTYPER) | GPIO_1_OTYPER_PP;
+
+    /* GPIOB1 no pull-up/pull-down */
+    reg_pointer = (uint32_t *)PORTB_PUPDR_REGISTER;
+    *reg_pointer = (*reg_pointer & ~GPIO_1_PUPDR) | GPIO_1_PUPDR_NOPULL;
+
+    /* Start LED on PB1 in known state (here: OFF) */
+    reg_pointer = (uint32_t *)PORTB_ODR_REGISTER;
+    *reg_pointer &= ~GPIO_1_ODR_HIGH;    // LED starts OFF
+}
+
+void initGpioB2AsOutput(void)
+{
+    uint32_t *reg_pointer;
+
+    /* GPIOB Peripheral clock enable (harmless if already enabled elsewhere) */
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
+
+    /* GPIOB2 configured as output: MODER[5:4] = 01 */
+    reg_pointer = (uint32_t *)PORTB_MODER_REGISTER;
+    *reg_pointer = (*reg_pointer & ~GPIO_2_MODER) | GPIO_2_MODER_OUT;
+
+    /* GPIOB2 configured as push-pull */
+    reg_pointer = (uint32_t *)PORTB_OTYPER_REGISTER;
+    *reg_pointer = (*reg_pointer & ~GPIO_2_OTYPER) | GPIO_2_OTYPER_PP;
+
+    /* GPIOB2 no pull-up/pull-down */
+    reg_pointer = (uint32_t *)PORTB_PUPDR_REGISTER;
+    *reg_pointer = (*reg_pointer & ~GPIO_2_PUPDR) | GPIO_2_PUPDR_NOPULL;
+
+    /* Start LED on PB2 OFF */
+    reg_pointer = (uint32_t *)PORTB_ODR_REGISTER;
+    *reg_pointer &= ~GPIO_2_ODR_HIGH;
+}
 
 
 

@@ -44,6 +44,14 @@ void initGpioC6AsAF2_TIM3CH1(void);
 void PC6_use_pullup(void);
 void PC6_use_pulldown(void);
 
+
+void initGpioB1AsOutput(void);
+void setGPIOB1( void );
+void clearGPIOB1(void);
+void initGpioB2AsOutput(void);
+void setGPIOB2(void);
+void clearGPIOB2(void);
+
 #ifdef __cplusplus
 }
 #endif

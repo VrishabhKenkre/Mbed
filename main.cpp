@@ -9,37 +9,38 @@
 #include "led_gummy.h"
 #include "gummy_timer.h"
 #include "gummy_sm.h"
+#include "gummy_color.h"
+
+
 
 int main(void)
 {
-    /* Low-level pin init */
+    // Low-level GPIO init
     initGpioC6AsInput();
-    initGpioB0AsOutput();
-    initGpioB1AsOutput();
-    initGpioB2AsOutput();
+    initGpioB0AsOutput();   // RED external + on-board LED channel
+    initGpioB1AsOutput();   // GREEN external
+    initGpioB2AsOutput();   // BLUE external
 
-    /* Timer + SM init */
+    allLEDs_Off();
+
+    // Timer + state machine init
     GummyTimer_Init();
     GummySM_Init();
 
     while (1)
     {
-        /* Run non-blocking state machine */
+        // Non-blocking state machine: handles
+        // LED on/off, delays, PC6 reads, and RESULT printing
         GummySM_Run();
 
-        /* If a new result is ready, read + print it */
-        if (GummySM_HasNewResult())
-        {
-            gummy_color_t color = GummySM_GetLastColor();
-            const char *name   = GummySM_ColorToString(color);
-
-            // Replace this with your UART print if needed
-            printf("Detected gummy: %s\r\n", name);
+        // If you want to *also* use the result elsewhere:
+        if (GummySM_HasNewResult()) {
+            gummy_color_t c = GummySM_GetLastColor();
+            (void)c;  // use it if you want; prints already happen inside SM
         }
-
-        /* You can do other stuff here; everything is non-blocking. */
     }
 }
+
 
 
 

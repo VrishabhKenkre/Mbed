@@ -133,8 +133,12 @@ void initGpioC6AsInput(void)
     *reg_pointer = (*reg_pointer & ~GPIO_6_OSPEEDR) | GPIO_6_OSPEEDR_HIGH_SPEED;
 
     /* Configure pulled-down: PUPDR[13:12] = 10 (pulldown → idle LOW) */
+    // reg_pointer = (uint32_t *)PORTC_PUPDR_REGISTER;
+    // *reg_pointer = (*reg_pointer & ~GPIO_6_PUPDR) | GPIO_6_PUPDER_PD;
+
+    /* NO pull-up / pull-down on PC6 (let comparator decide the level) */
     reg_pointer = (uint32_t *)PORTC_PUPDR_REGISTER;
-    *reg_pointer = (*reg_pointer & ~GPIO_6_PUPDR) | GPIO_6_PUPDER_PD;
+    *reg_pointer = (*reg_pointer & ~GPIO_6_PUPDR) | GPIO_6_PUPDR_NOPULL;
 }
 
 void initGpioB0AsOutput(void)

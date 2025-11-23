@@ -5,6 +5,10 @@
 #define GUMMY_TIMER_H
 
 #include <stdint.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 
 /*
  * GummyTimer_Init
@@ -35,4 +39,7 @@ uint8_t GummyTimer_CheckExpired(void);
  */
 uint32_t GummyTimer_GetTimeMs(void);
 
+#ifdef __cplusplus
+}
+#endif
 #endif // GUMMY_TIMER_H

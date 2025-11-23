@@ -1,1 +1,4 @@
 .cache/
+.cache/
+bin_files_to_run/
+*.tar

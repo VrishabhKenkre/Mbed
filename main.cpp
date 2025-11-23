@@ -33,10 +33,8 @@ int main(void)
         // LED on/off, delays, PC6 reads, and RESULT printing
         GummySM_Run();
 
-        // If you want to *also* use the result elsewhere:
         if (GummySM_HasNewResult()) {
             gummy_color_t c = GummySM_GetLastColor();
-            (void)c;  // use it if you want; prints already happen inside SM
         }
     }
 }
